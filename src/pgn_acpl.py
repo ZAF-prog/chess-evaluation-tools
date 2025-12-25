@@ -40,15 +40,46 @@ BOOTSTRAP_SAMPLES = 1000
 ADVANTAGE_THRESHOLD = 300  # +/- 3.00 pawns
 
 def parse_eval(comment):
-    """Extracts centipawn score from [%eval score,depth]. Handles mate tags (#)."""
-    match = re.search(r'\[%eval\s+([-#]?\d+)', comment)
+    """
+    Extracts centipawn score from [%eval score,depth]. 
+    Handles:
+    - Integers: [%eval 15] -> 15
+    - Floats (pawn units): [%eval 0.15] -> 15
+    - Mate tags: [%eval #3] -> 10000, [%eval #-2] -> -10000
+    - Signs: [%eval -0.5] -> -50
+    """
+    # Match group 1: the numeric value (including . and -) or the mate tag (#)
+    match = re.search(r'\[%eval\s+([-+]?[#\d\.]+)', comment)
     if not match:
         return None
+    
     val_str = match.group(1)
+    
+    # Handle mate tags
     if '#' in val_str:
-        mate_num = int(val_str.replace('#', ''))
-        return 10000 if mate_num > 0 else -10000
-    return int(val_str)
+        try:
+            mate_num_str = val_str.replace('#', '')
+            if not mate_num_str or mate_num_str == '+':
+                return 10000
+            if mate_num_str == '-':
+                return -10000
+            mate_num = int(mate_num_str)
+            return 10000 if mate_num > 0 else -10000
+        except ValueError:
+            return 10000 if '#' in val_str and '-' not in val_str else -10000
+
+    # Handle numeric evaluations
+    try:
+        val = float(val_str)
+        # If it looks like pawn units (has a decimal point and is small, or just has a decimal point)
+        # Standard PGN [%eval] can be either CP or pawns. 
+        # Most modern tools use pawn units (floats) or CP (integers).
+        if '.' in val_str:
+            return int(round(val * 100))
+        else:
+            return int(val)
+    except ValueError:
+        return None
 
 def process_single_pgn(file_path):
     """Analyzes one PGN file as a distinct tournament/match entity."""
@@ -62,9 +93,6 @@ def process_single_pgn(file_path):
                 game = chess.pgn.read_game(pgn)
                 if game is None: break
                 
-                if not any("[%eval" in node.comment for node in game.mainline()):
-                    continue
-
                 white = game.headers.get("White", "Unknown")
                 black = game.headers.get("Black", "Unknown")
                 
@@ -80,6 +108,10 @@ def process_single_pgn(file_path):
                 prev_eval = None
                 half_move_idx = 0
                 
+                # Check the starting position comment (if any) for initial eval
+                if game.comment:
+                    prev_eval = parse_eval(game.comment)
+
                 while node.mainline_moves():
                     move = next(iter(node.mainline_moves()))
                     node = node.variation(move)
@@ -87,18 +119,24 @@ def process_single_pgn(file_path):
                     curr_eval = parse_eval(node.comment)
                     
                     if curr_eval is not None and prev_eval is not None:
+                        # Logic: Only analyze if we have a continuous chain of evaluations.
+                        # If a move is missing an eval, prev_eval becomes None until the next eval is found.
                         if half_move_idx >= START_HALF_MOVE and abs(prev_eval) <= ADVANTAGE_THRESHOLD:
-                            if half_move_idx % 2 != 0: # White
+                            if half_move_idx % 2 != 0: # White move
                                 loss = prev_eval - curr_eval
                                 player_losses[white].append(max(0, loss))
-                            else: # Black
+                            else: # Black move
                                 loss = curr_eval - prev_eval
                                 player_losses[black].append(max(0, loss))
                     
-                    if curr_eval is not None:
-                        prev_eval = curr_eval
+                    # Update prev_eval for the next move
+                    # If current move has no evaluation, we cannot calculate the loss for the NEXT move either.
+                    prev_eval = curr_eval
+                    
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
+        import traceback
+        traceback.print_exc()
         return []
 
     results = []
@@ -106,8 +144,14 @@ def process_single_pgn(file_path):
         if not losses: continue
         
         mean_acpl = np.mean(losses)
-        boot_means = [np.mean(np.random.choice(losses, size=len(losses), replace=True)) 
-                      for _ in range(BOOTSTRAP_SAMPLES)]
+        
+        # Bootstrap for Robust SD
+        if len(losses) > 1:
+            boot_means = [np.mean(np.random.choice(losses, size=len(losses), replace=True)) 
+                          for _ in range(BOOTSTRAP_SAMPLES)]
+            robust_sd = np.std(boot_means)
+        else:
+            robust_sd = 0.0
         
         ratings = player_ratings.get(player, [])
         avg_elo = round(np.mean(ratings), 1) if ratings else "N/A"
@@ -116,7 +160,7 @@ def process_single_pgn(file_path):
             "Tournament": tournament_name,
             "Player": player,
             "ACPL": round(mean_acpl, 2),
-            "Robust_SD": round(np.std(boot_means), 4),
+            "Robust_SD": round(robust_sd, 4),
             "AvgElo": avg_elo,
             "AnalyzedMoves": len(losses)
         })
@@ -129,7 +173,7 @@ def main():
             "Key Logic:\n"
             "- Starts analysis from White's 9th move (half-move 17).\n"
             "- Discards moves where position advantage > 300 CP.\n"
-            "- Uses [%eval] tags for calculation.\n"
+            "- Uses [%eval] tags for calculation (supports floats/CP/mate).\n"
             "- Computes bootstrapped SD for consistency."
         ),
         formatter_class=argparse.RawTextHelpFormatter
@@ -138,28 +182,33 @@ def main():
     parser.add_argument("pgn_file", nargs="?", help="Path to a single PGN file.")
     parser.add_argument("--pgn_list", metavar="LIST_FILE", help="Text file with PGN filenames (one per line).")
 
-    if len(sys.argv) == 1:
+    args = parser.parse_args()
+    
+    if not args.pgn_file and not args.pgn_list:
         parser.print_help()
         sys.exit(1)
-
-    args = parser.parse_args()
     
     target_files = []
     if args.pgn_list:
         if not os.path.exists(args.pgn_list):
             print(f"Error: List file '{args.pgn_list}' not found.")
             return
-        with open(args.pgn_list, 'r') as f:
-            # FIX: .strip(" \n\r\t\"'") removes whitespace AND quotes
-            target_files = [line.strip().strip('"').strip("'") for line in f if line.strip()]
+        with open(args.pgn_list, 'r', encoding='utf-8') as f:
+            # More robust path parsing: strip whitespace, then quotes, then whitespace again
+            target_files = [line.strip().strip('"').strip("'").strip() for line in f if line.strip()]
         input_basename = os.path.splitext(os.path.basename(args.pgn_list))[0]
     else:
-        target_files = [args.pgn_file.strip('"').strip("'")]
+        # Also clean up the single file path
+        target_files = [args.pgn_file.strip().strip('"').strip("'").strip()]
         input_basename = os.path.splitext(os.path.basename(args.pgn_file))[0]
 
     all_rows = []
     for f_path in target_files:
         if not f_path: continue
+        if not os.path.exists(f_path):
+            print(f"Warning: File not found: {f_path}")
+            continue
+            
         print(f"Processing: {f_path}...")
         all_rows.extend(process_single_pgn(f_path))
 
@@ -167,7 +216,8 @@ def main():
         df = pd.DataFrame(all_rows)
         output_csv = f"{input_basename}_ACPL-stat.csv"
         df.to_csv(output_csv, index=False)
-        print(f"\nAnalysis complete. Results saved to: {output_csv}")
+        print(f"\nAnalysis complete. {len(all_rows)} players analyzed.")
+        print(f"Results saved to: {output_csv}")
     else:
         print("No valid evaluation data found for analysis.")
 
