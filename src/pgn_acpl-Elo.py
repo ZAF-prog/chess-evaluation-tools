@@ -99,9 +99,11 @@ def main():
     ]
     df_output = df_clean[output_cols]
     
-    # Generate Output Filename
+    # Generate Output Filename in the same directory as input
+    input_dir = os.path.dirname(args.input_csv)
     basename = os.path.splitext(os.path.basename(args.input_csv))[0]
-    output_csv = f"{basename}-fit.CSV"
+    output_filename = f"{basename}-fit.csv"
+    output_csv = os.path.join(input_dir, output_filename) if input_dir else output_filename
     
     # Write to File
     try:
