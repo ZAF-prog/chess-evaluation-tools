@@ -100,7 +100,7 @@ def main():
     # Prepare Final Output
     # We want to keep Tournament and Player for identification
     output_cols = [
-        'Tournament', 'Player', 'AvgElo', 'Fitted_Elo', 
+        'Tournament', 'Player', 'AvgElo', 'ACPL', 'Robust_SD', 'Fitted_Elo', 
         'Residual', 'Intercept', 'Intercept_SD', 'Slope_ACPL', 'Slope_SD', 'R2'
     ]
     df_output = df_clean[output_cols]
