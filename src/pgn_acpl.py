@@ -156,6 +156,9 @@ def process_single_pgn(file_path):
         ratings = player_ratings.get(player, [])
         avg_elo = round(np.mean(ratings), 1) if ratings else "N/A"
         
+        if robust_sd > 10:
+            continue
+            
         results.append({
             "Tournament": tournament_name,
             "Player": player,
