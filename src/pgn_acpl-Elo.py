@@ -82,20 +82,26 @@ def main():
     slope_acpl = model.params['ACPL']
     slope_sd = model.params['Robust_SD']
     
+    # Extra statistics requested
+    r2 = model.rsquared
+    intercept_se = model.bse['const']
+    
     # Calculate Fitted Values and Residuals
     df_clean['Fitted_Elo'] = model.fittedvalues.round(1)
     df_clean['Residual'] = (df_clean['AvgElo'] - df_clean['Fitted_Elo']).round(1)
     
     # Add parameters to the dataframe for the output
     df_clean['Intercept'] = round(intercept, 4)
+    df_clean['Intercept_SD'] = round(intercept_se, 4)
     df_clean['Slope_ACPL'] = round(slope_acpl, 4)
     df_clean['Slope_SD'] = round(slope_sd, 4)
+    df_clean['R2'] = round(r2, 4)
     
     # Prepare Final Output
     # We want to keep Tournament and Player for identification
     output_cols = [
         'Tournament', 'Player', 'AvgElo', 'Fitted_Elo', 
-        'Residual', 'Intercept', 'Slope_ACPL', 'Slope_SD'
+        'Residual', 'Intercept', 'Intercept_SD', 'Slope_ACPL', 'Slope_SD', 'R2'
     ]
     df_output = df_clean[output_cols]
     
