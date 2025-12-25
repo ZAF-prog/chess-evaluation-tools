@@ -166,6 +166,70 @@ def process_single_pgn(file_path):
         })
     return results
 
+def fuzzy_resolve_path(path):
+    """
+    Attempts to resolve a path that might be missing a directory separator.
+    Example: 'dataWCC_Lichess1986.pgn' -> 'data/WCC_Lichess/1986.pgn'
+    It iteratively checks if a prefix of the path is an existing directory,
+    and then if the remaining part exists within that directory.
+    """
+    if os.path.exists(path):
+        return path
+
+    # Normalize separators for processing
+    normalized_path = path.replace('\\', '/')
+    
+    # Try to find a split point where the left part is a directory
+    parts = normalized_path.split('/')
+    
+    # Case 1: The separator is missing between the last directory and the filename
+    # e.g., C:/Users/Public/.../data/WCC_Lichess1986.pgn
+    if len(parts) > 1:
+        base_dir = '/'.join(parts[:-1])
+        problematic_part = parts[-1]
+        
+        if os.path.isdir(base_dir):
+            # Try to split the 'problematic_part' into (existing_folder, filename)
+            # We iterate through all subdirectories in base_dir
+            try:
+                for entry in os.scandir(base_dir):
+                    if entry.is_dir():
+                        folder_name = entry.name
+                        if problematic_part.startswith(folder_name):
+                            remainder = problematic_part[len(folder_name):]
+                            # Handle cases where there might be yet another missing separator
+                            # or just the filename with an optional leading separator
+                            if remainder.startswith('_') or remainder.startswith('-') or remainder[0].isdigit():
+                                # Try joined with a slash
+                                candidate = os.path.join(base_dir, folder_name, remainder.lstrip('/\\'))
+                                if os.path.exists(candidate):
+                                    return candidate
+            except Exception:
+                pass
+
+    # Case 2: General scan (more expensive but thorough)
+    # We walk up the path and try to find where it breaks
+    temp_path = normalized_path
+    while temp_path and temp_path != '/':
+        parent = os.path.dirname(temp_path)
+        if os.path.isdir(parent):
+            # We found a valid parent. Now see if the 'tail' can be matched inside 'parent'
+            tail = normalized_path[len(parent):].lstrip('/')
+            try:
+                for entry in os.scandir(parent):
+                    if tail.startswith(entry.name):
+                        sub_remainder = tail[len(entry.name):].lstrip('/')
+                        if not sub_remainder: # It was just the folder
+                            continue
+                        candidate = os.path.join(parent, entry.name, sub_remainder)
+                        if os.path.exists(candidate):
+                            return candidate
+            except Exception:
+                pass
+        temp_path = parent
+
+    return None
+
 def main():
     parser = argparse.ArgumentParser(
         description=(
@@ -205,12 +269,20 @@ def main():
     all_rows = []
     for f_path in target_files:
         if not f_path: continue
+        
+        resolved_path = f_path
         if not os.path.exists(f_path):
-            print(f"Warning: File not found: {f_path}")
-            continue
+            # Attempt fuzzy resolution
+            fuzzy_path = fuzzy_resolve_path(f_path)
+            if fuzzy_path:
+                print(f"Fuzzy resolved: {f_path} -> {fuzzy_path}")
+                resolved_path = fuzzy_path
+            else:
+                print(f"Warning: File not found: {f_path}")
+                continue
             
-        print(f"Processing: {f_path}...")
-        all_rows.extend(process_single_pgn(f_path))
+        print(f"Processing: {resolved_path}...")
+        all_rows.extend(process_single_pgn(resolved_path))
 
     if all_rows:
         df = pd.DataFrame(all_rows)
