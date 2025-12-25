@@ -22,19 +22,37 @@ import sys
 
 def perform_regression(df):
     """
-    Performs OLS regression: AvgElo ~ ACPL + Robust_SD
-    Returns the model and the results.
+    Performs OLS regression: AvgElo ~ ACPL + Robust_SD.
+    Iteratively removes variables with p-value > 0.1.
+    Returns (model, variables_used).
     """
-    # Define independent variables (X) and dependent variable (y)
-    X = df[['ACPL', 'Robust_SD']]
-    y = df['AvgElo']
+    initial_vars = ['ACPL', 'Robust_SD']
+    current_vars = initial_vars.copy()
     
-    # Add constant for intercept
-    X = sm.add_constant(X)
-    
-    # Fit OLS model
-    model = sm.OLS(y, X).fit()
-    return model
+    while True:
+        # Define X and y
+        X = df[current_vars]
+        X = sm.add_constant(X)
+        y = df['AvgElo']
+        
+        # Fit OLS model
+        model = sm.OLS(y, X).fit()
+        
+        # Check p-values for independent variables (exclude 'const')
+        p_values = model.pvalues.drop('const')
+        
+        # Find variables with p > 0.1
+        bad_vars = p_values[p_values > 0.1]
+        
+        if bad_vars.empty or not current_vars:
+            break
+            
+        # Remove the variable with the highest p-value
+        var_to_remove = bad_vars.idxmax()
+        print(f"Variable '{var_to_remove}' has p-value {bad_vars[var_to_remove]:.4f} > 0.1. Removing and re-fitting...")
+        current_vars.remove(var_to_remove)
+        
+    return model, current_vars
 
 def main():
     parser = argparse.ArgumentParser(description="Multivariable regression of AvgElo vs ACPL and Robust_SD.")
@@ -70,17 +88,17 @@ def main():
         
     print(f"Analyzing {len(df_clean)} data points...")
     
-    # Perform Regression
-    model = perform_regression(df_clean)
+    # Perform Regression with iterative filtering
+    model, final_vars = perform_regression(df_clean)
     
     # Print Summary to Console
     print("\n--- REGRESSION SUMMARY ---")
     print(model.summary())
     
-    # Extract Parameters
+    # Extract Parameters (handle cases where variables were removed)
     intercept = model.params['const']
-    slope_acpl = model.params['ACPL']
-    slope_sd = model.params['Robust_SD']
+    slope_acpl = model.params.get('ACPL', 0.0)
+    slope_sd = model.params.get('Robust_SD', 0.0)
     
     # Extra statistics requested
     r2 = model.rsquared
@@ -93,8 +111,8 @@ def main():
     # Add parameters to the dataframe for the output
     df_clean['Intercept'] = round(intercept, 4)
     df_clean['Intercept_SD'] = round(intercept_se, 4)
-    df_clean['Slope_ACPL'] = round(slope_acpl, 4)
-    df_clean['Slope_SD'] = round(slope_sd, 4)
+    df_clean['Slope_ACPL'] = round(slope_acpl, 4) if 'ACPL' in final_vars else "N/A"
+    df_clean['Slope_SD'] = round(slope_sd, 4) if 'Robust_SD' in final_vars else "N/A"
     df_clean['R2'] = round(r2, 4)
     
     # Prepare Final Output
