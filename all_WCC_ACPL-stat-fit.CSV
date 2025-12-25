@@ -1,0 +1,53 @@
+Tournament,Player,AvgElo,Fitted_Elo,Residual,Intercept,Slope_ACPL,Slope_SD
+1972_Spassky-Fischer.pgn,"Spassky, Boris V.",2660.0,2716.4,-56.4,2868.9523,-8.9336,12.0118
+1972_Spassky-Fischer.pgn,"Fischer, Robert James",2785.0,2762.3,22.7,2868.9523,-8.9336,12.0118
+1978_Karpov-Korchnoi.pgn,"Korchnoi, Viktor",2665.0,2737.0,-72.0,2868.9523,-8.9336,12.0118
+1978_Karpov-Korchnoi.pgn,"Karpov, Anatoly",2725.0,2742.7,-17.7,2868.9523,-8.9336,12.0118
+1981_Karpov-Korchnoi_II.pgn,"Korchnoi, Viktor",2695.0,2758.2,-63.2,2868.9523,-8.9336,12.0118
+1981_Karpov-Korchnoi_II.pgn,"Karpov, Anatoly",2700.0,2778.0,-78.0,2868.9523,-8.9336,12.0118
+1984_Karpov-Kasparov.pgn,"Karpov, Anatoly",2705.0,2756.8,-51.8,2868.9523,-8.9336,12.0118
+1984_Karpov-Kasparov.pgn,"Kasparov, Garry",2715.0,2760.2,-45.2,2868.9523,-8.9336,12.0118
+1985_Karpov-Kasparov_II.pgn,"Kasparov, Garry",2700.0,2759.4,-59.4,2868.9523,-8.9336,12.0118
+1985_Karpov-Kasparov_II.pgn,"Karpov, Anatoly",2720.0,2739.2,-19.2,2868.9523,-8.9336,12.0118
+1986_Karpov-Kasparov_III.pgn,"Karpov, Anatoly",2705.0,2743.9,-38.9,2868.9523,-8.9336,12.0118
+1986_Karpov-Kasparov_III.pgn,"Kasparov, Garry",2740.0,2765.4,-25.4,2868.9523,-8.9336,12.0118
+1987_Karpov-Kasparov_IV.pgn,"Karpov, Anatoly",2700.0,2744.9,-44.9,2868.9523,-8.9336,12.0118
+1987_Karpov-Kasparov_IV.pgn,"Kasparov, Garry",2740.0,2753.4,-13.4,2868.9523,-8.9336,12.0118
+1990_Karpov-Kasparov_V.pgn,"Karpov, Anatoly",2730.0,2734.4,-4.4,2868.9523,-8.9336,12.0118
+1990_Karpov-Kasparov_V.pgn,"Kasparov, Garry",2800.0,2743.5,56.5,2868.9523,-8.9336,12.0118
+1993_Kasparov-Short.pgn,"Kasparov, Garry",2805.0,2745.8,59.2,2868.9523,-8.9336,12.0118
+1993_Kasparov-Short.pgn,"Short, Nigel D",2655.0,2714.1,-59.1,2868.9523,-8.9336,12.0118
+1995_Kasparov-Anand.pgn,"Anand, Viswanathan",2725.0,2743.9,-18.9,2868.9523,-8.9336,12.0118
+1995_Kasparov-Anand.pgn,"Kasparov, Garry",2795.0,2776.6,18.4,2868.9523,-8.9336,12.0118
+2000_Kasparov-Kramnik.pgn,"Kasparov, Garry",2849.0,2755.3,93.7,2868.9523,-8.9336,12.0118
+2000_Kasparov-Kramnik.pgn,"Kramnik, Vladimir",2770.0,2781.1,-11.1,2868.9523,-8.9336,12.0118
+2004_Kramnik-Leko.pgn,"Leko, Peter",2741.0,2752.8,-11.8,2868.9523,-8.9336,12.0118
+2004_Kramnik-Leko.pgn,"Kramnik, Vladimir",2770.0,2761.2,8.8,2868.9523,-8.9336,12.0118
+2006_Kramnik-Topalov.pgn,"Kramnik, Vladimir",2743.0,2756.0,-13.0,2868.9523,-8.9336,12.0118
+2006_Kramnik-Topalov.pgn,"Topalov, Veselin",2813.0,2762.9,50.1,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Kramnik, Vladimir",2769.0,2768.7,0.3,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Svidler, Peter",2735.0,2749.5,-14.5,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Morozevich, Alexander",2758.0,2697.5,60.5,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Aronian, Levon",2750.0,2721.5,28.5,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Anand, Viswanathan",2792.0,2773.1,18.9,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Gelfand, Boris",2733.0,2728.9,4.1,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Grischuk, Alexander",2726.0,2739.3,-13.3,2868.9523,-8.9336,12.0118
+2007_World_Championship_Tournament.pgn,"Leko, Peter",2751.0,2777.3,-26.3,2868.9523,-8.9336,12.0118
+2008_Anand-Kramnik.pgn,"Kramnik, Vladimir",2772.0,2759.5,12.5,2868.9523,-8.9336,12.0118
+2008_Anand-Kramnik.pgn,"Anand, Viswanathan",2783.0,2777.5,5.5,2868.9523,-8.9336,12.0118
+2010_Anand-Topalov.pgn,"Topalov, Veselin",2805.0,2763.8,41.2,2868.9523,-8.9336,12.0118
+2010_Anand-Topalov.pgn,"Anand, Viswanathan",2787.0,2774.2,12.8,2868.9523,-8.9336,12.0118
+2012_Anand-Gelfand.pgn,"Anand, Viswanathan",2791.5,2751.6,39.9,2868.9523,-8.9336,12.0118
+2012_Anand-Gelfand.pgn,"Gelfand, Boris",2727.8,2775.0,-47.2,2868.9523,-8.9336,12.0118
+2013_Anand-Carlsen.pgn,"Carlsen, Magnus",2870.0,2798.8,71.2,2868.9523,-8.9336,12.0118
+2013_Anand-Carlsen.pgn,"Anand, Viswanathan",2775.0,2771.5,3.5,2868.9523,-8.9336,12.0118
+2014_Anand-Carlsen_II.pgn,"Anand, Viswanathan",2792.0,2767.1,24.9,2868.9523,-8.9336,12.0118
+2014_Anand-Carlsen_II.pgn,"Carlsen, Magnus",2863.0,2784.6,78.4,2868.9523,-8.9336,12.0118
+2016_Carlsen-Karjakin.pgn,"Carlsen, Magnus",2863.2,2775.0,88.2,2868.9523,-8.9336,12.0118
+2016_Carlsen-Karjakin.pgn,"Karjakin, Sergey",2783.5,2771.4,12.1,2868.9523,-8.9336,12.0118
+2018_Carlsen-Caruana.pgn,"Caruana, Fabiano",2823.4,2771.3,52.1,2868.9523,-8.9336,12.0118
+2018_Carlsen-Caruana.pgn,"Carlsen, Magnus",2844.0,2799.5,44.5,2868.9523,-8.9336,12.0118
+2023_Ding-Nepomniachtchi.pgn,"Nepomniachtchi, Ian",2787.3,2764.0,23.3,2868.9523,-8.9336,12.0118
+2023_Ding-Nepomniachtchi.pgn,"Ding, Liren",2797.3,2778.0,19.3,2868.9523,-8.9336,12.0118
+2024_Ding-Dommaraju.pgn,Gukesh D,2783.0,2826.3,-43.3,2868.9523,-8.9336,12.0118
+2024_Ding-Dommaraju.pgn,"Ding, Liren",2728.0,2830.4,-102.4,2868.9523,-8.9336,12.0118
