@@ -194,3 +194,5 @@ __marimo__/
 .venv/
 __pycache__/
 *.pyc
+src/GlickoAssessor/
+
