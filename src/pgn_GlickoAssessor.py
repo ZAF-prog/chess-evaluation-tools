@@ -187,7 +187,7 @@ def read_games(fn):
 def main():
     parser = argparse.ArgumentParser(description="Calculate Glicko-2 ratings from PGN files.")
     parser.add_argument('--directory', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\WCC_Lichess', help='Directory containing PGN files')
-    parser.add_argument('--input_pgn', type=str, default=None, help='Path to additional data file (CSV) to merge with output')
+    parser.add_argument('--input_csv', type=str, default=None, help='Path to additional data file (CSV) to merge with output')
     parser.add_argument('--output_csv', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\Glicko-2_ratings.csv', help='Output CSV file path')
     
     args = parser.parse_args()
@@ -221,15 +221,21 @@ def main():
         # final_df = final_df[cols] 
 
         # Merge with external data if provided
-        if args.input_pgn and os.path.exists(args.input_pgn):
+        if args.input_csv and os.path.exists(args.input_csv):
             try:
-                print(f"Reading additional data from {args.input_pgn}...")
-                additional_data = pd.read_csv(args.input_pgn)
+                print(f"Reading additional data from {args.input_csv}...")
+                additional_data = pd.read_csv(args.input_csv)
+                
+                # Normalize Tournament column to basename for better matching
+                final_df['Tournament'] = final_df['Tournament'].apply(os.path.basename)
+                if 'Tournament' in additional_data.columns:
+                     additional_data['Tournament'] = additional_data['Tournament'].apply(os.path.basename)
+
                 # Outer merge to keep all records
                 final_df = final_df.merge(additional_data, on=['Tournament', 'Player'], how='outer')
                 print(f"Merged with additional data. Total rows: {len(final_df)}")
             except Exception as e:
-                print(f"Error reading/merging {args.input_pgn}: {e}")
+                print(f"Error reading/merging {args.input_csv}: {e}")
 
         final_df.to_csv(output_csv, index=False)
         print(f"Updated ratings saved to {output_csv}")
