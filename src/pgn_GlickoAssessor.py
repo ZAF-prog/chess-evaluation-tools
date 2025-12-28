@@ -187,6 +187,7 @@ def read_games(fn):
 def main():
     parser = argparse.ArgumentParser(description="Calculate Glicko-2 ratings from PGN files.")
     parser.add_argument('--directory', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\WCC_Lichess', help='Directory containing PGN files')
+    parser.add_argument('--input_pgn', type=str, default=None, help='Path to additional data file (CSV) to merge with output')
     parser.add_argument('--output_csv', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\Glicko-2_ratings.csv', help='Output CSV file path')
     
     args = parser.parse_args()
@@ -216,8 +217,20 @@ def main():
         # Ensure all cols exist
         for c in cols:
             if c not in final_df.columns: final_df[c] = None
-        final_df = final_df[cols]
-        
+        # Don't restrict columns yet if we are merging
+        # final_df = final_df[cols] 
+
+        # Merge with external data if provided
+        if args.input_pgn and os.path.exists(args.input_pgn):
+            try:
+                print(f"Reading additional data from {args.input_pgn}...")
+                additional_data = pd.read_csv(args.input_pgn)
+                # Outer merge to keep all records
+                final_df = final_df.merge(additional_data, on=['Tournament', 'Player'], how='outer')
+                print(f"Merged with additional data. Total rows: {len(final_df)}")
+            except Exception as e:
+                print(f"Error reading/merging {args.input_pgn}: {e}")
+
         final_df.to_csv(output_csv, index=False)
         print(f"Updated ratings saved to {output_csv}")
     else:
