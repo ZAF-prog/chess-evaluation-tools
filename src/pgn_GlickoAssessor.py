@@ -5,6 +5,7 @@ import os
 import glob
 import pandas as pd
 from GlickoAssessor.glicko_assessor import GlickoAssessor, read_games, get_player_names
+from GlickoAssessor.glicko2 import Rating
 
 def filter_pgn_files(directory):
     """Filter PGN files based on year."""
@@ -53,7 +54,7 @@ def process_tournament(pgn_file, initial_ratings):
                 volatility = 0.05
 
         # Simulate Glicko calculation (using the full algorithm)
-        for game in games:
+        for game in games[:10]:  # Print only the first 10 games for debugging purposes
             print(f"Game: {game}")  # Debugging print statement
 
             try:
@@ -68,6 +69,37 @@ def process_tournament(pgn_file, initial_ratings):
             initial_ratings.loc[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player), ['Rating', 'RD', 'Volatility']] = [rating, rd, volatility]
 
     return initial_ratings
+
+def read_games(fn):
+    """
+    Returns a list of results of the form (p1, p2, score).
+    """
+    ret = []
+    wp, bp = None, None
+    result = 0.5  # Default draw value
+
+    with open(fn) as h:
+        for lines in h:
+            line = lines.strip()
+            
+            if line.startswith("[White "):
+                wp = line.split('"')[1].strip()
+            elif line.startswith("[Black "):
+                bp = line.split('"')[1].strip()
+            elif line.startswith("[Result"):
+                result_str = '0.5'  # Default draw value
+                if '1-0' in line: 
+                    result_str = '1'
+                elif '0-1' in line:
+                    result_str = '0'
+
+                result = float(result_str)
+                
+            if wp and bp and result is not None:
+                ret.append((wp, bp, result))
+                wp, bp, result = None, None, 0.5
+
+    return ret
 
 def main():
     directory = r'C:\Users\Public\Github\chess-evaluation-tools\data\WCC_Lichess'
