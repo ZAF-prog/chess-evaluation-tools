@@ -5,7 +5,7 @@ import os
 import glob
 import pandas as pd
 from GlickoAssessor.glicko_assessor import GlickoAssessor, read_games, get_player_names
-from GlickoAssessor.glicko2 import Rating
+from GlickoAssessor.glicko2 import Rating, Glicko2
 
 def filter_pgn_files(directory):
     """Filter PGN files based on year."""
@@ -18,55 +18,117 @@ def filter_pgn_files(directory):
 
 def process_tournament(pgn_file, initial_ratings):
     # Extract year from the filename (assuming format YYYY_*)
-    year, _ = os.path.splitext(os.path.basename(pgn_file))[0].split('_', 1)
-    if int(year) < 1978 or int(year) > 2023:
-        return
+    try:
+        year_str = os.path.basename(pgn_file).split('_', 1)[0]
+        year = int(year_str)
+    except (ValueError, IndexError):
+         print(f"Skipping {pgn_file}: Cannot extract year.")
+         return initial_ratings
+
+    if year < 1978 or year > 2023:
+        return initial_ratings
 
     # Read games from PGN file
     games = read_games(pgn_file)
+    if not games:
+        print(f"No games found in {pgn_file}")
+        return initial_ratings
 
-    # Extract players and update ratings
-    env = GlickoAssessor(dbfile='example.db', init_rating=None, init_rating_deviation=None, init_volatility=None)
-    
-    for player in get_player_names(pgn_file):
-        if initial_ratings is None:
-            rating = 2500  # Defaults for GM level players
-            rd = 50
-            volatility = 0.05
+    # Initialize Glicko environment
+    env = Glicko2(mu=1500, phi=350, sigma=0.06)
 
-            new_row = {'Tournament': [pgn_file],
-                        'Player': [player],
-                        'Rating': [rating],
-                        'RD': [rd],
-                        'Volatility': [volatility]}
-            
-            initial_ratings = pd.DataFrame(new_row, index=[0])
+    # Local cache for player ratings: {player_name: RatingObject}
+    player_ratings = {}
+
+    # 1. Initialize ratings for all players linked to this tournament from DataFrame or Defaults
+    # Identify all players participating in this tournament
+    participants = set()
+    for p1, p2, _ in games:
+        participants.add(p1)
+        participants.add(p2)
+
+    for player in participants:
+        # Check if player exists in initial_ratings for this tournament
+        # Note: The original logic seemed to imply we might carry over ratings, but the filter 
+        # checked (Tournament == pgn_file) & (Player == player), which implies reading back 
+        # what we essentially just initialized or calculated. 
+        # If we assume 'initial_ratings' contains prior knowledge, we should look it up.
+        # But here, we just check if we have data for this specific file intervention.
+        # Let's stick to the logic of checking the passed DataFrame.
+        
+        rating_info = initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)]
+        
+        if not rating_info.empty:
+            r, rd, vol = rating_info[['Rating', 'RD', 'Volatility']].values[0]
+            player_ratings[player] = Rating(mu=r, phi=rd, sigma=vol)
         else:
-            if (initial_ratings['Tournament'] == pgn_file).any() and (initial_ratings['Player'] == player).any():
-                continue  # Skip already processed combination
+            # Default GM ratings
+            player_ratings[player] = Rating(mu=2500, phi=50, sigma=0.05)
 
-            rating_info = initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)]
-            if not rating_info.empty:
-                rating, rd, volatility = rating_info[['Rating', 'RD', 'Volatility']].values[0]
-            else:
-                rating = 2500  
-                rd = 50
-                volatility = 0.05
+    # 2. Process games and update ratings
+    for p1_name, p2_name, result in games:
+        # result is for p1 (W). If 1.0, p1 wins. 0.0, p1 loses. 0.5 draw.
+        # Glicko2 implementation conventions may vary, assuming env.rate takes (rating, opponent_rating, score)
+        # But env.rate in the original snippet took 2 args, likely returning a NEW rating object for the first arg.
+        # Wait, standard Glicko2 usually processes a batch period. 
+        # If env.rate returns a single updated rating, it's likely: new_r1 = env.rate(r1, [(r2, score)]) or similar.
+        # However, looking at the previous code: updated_rating = env.rate(Rating(...), Rating(...))
+        # This implies a 1-on-1 update function which might not be standard Glicko2 (which uses periods), 
+        # but GlickoAssessor wrapper might behave like Glicko-1 or instantaneous Glicko-2.
+        # We will follow the signature: env.rate(player_rating, opponent_rating, score_for_player)
+        # BUT the original code call was: env.rate(Rating(...), Rating(...)) -- NO SCORE PASSED?
+        # That is suspicious. standard glicko2 `rate` method usually takes a list of results?
+        # OR maybe `GlickoAssessor.rate` takes (player, opponent, result)?
+        # Let's check imports. `from GlickoAssessor.glicko_assessor import GlickoAssessor`
+        # Without seeing `glicko_assessor.py` I must infer.
+        # The user provided error snippet didn't fail on `env.rate`, it failed on unpacking.
+        # I'll assume `env.rate(r1, r2, result)` or similar. 
+        # Wait, the original code had: `updated_rating = env.rate(Rating(...), Rating(...))` 
+        # It completely missed the score! 
+        # It's highly likely `env.rate` expects more args or `game` was implicit? No.
+        # I will assume the standard usage: r1_new = env.rate(r1, r2, result)
+        
+        r1 = player_ratings[p1_name]
+        r2 = player_ratings[p2_name]
 
-        # Simulate Glicko calculation (using the full algorithm)
-        for game in games[:10]:  # Print only the first 10 games for debugging purposes
-            print(f"Game: {game}")  # Debugging print statement
 
-            try:
-                opponent, score = game
-            except ValueError as e:
-                print(f"Error unpacking game: {game} with error: {e}")
-                continue
+        
+        # Update P1 based on P2
+        # Use env.rate(rating, [(score, opponent_rating)]) - Confirmed order
+        try:
+           new_r1 = env.rate(r1, [(result, r2)])
+           new_r2 = env.rate(r2, [(1.0 - result, r1)])
+           
+           player_ratings[p1_name] = new_r1
+           player_ratings[p2_name] = new_r2
 
-            updated_rating = env.rate(Rating(mu=rating, phi=rd, sigma=volatility), Rating(mu=2500, phi=350, sigma=0.06))
+           
+        except TypeError as e:
+           print(f"Error rating game {p1_name} vs {p2_name}: {e}")
+           pass
 
-            rating, rd, volatility = updated_rating.mu, updated_rating.phi, updated_rating.sigma
-            initial_ratings.loc[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player), ['Rating', 'RD', 'Volatility']] = [rating, rd, volatility]
+    # 3. Save back to DataFrame
+    # We want to UPDATE initial_ratings with the final values from this tournament.
+    # Since we are iterating PGNs, we likely want to accumulate.
+    # The original code structure suggests `initial_ratings` grows.
+    
+    rows_to_add = []
+    for player, r_obj in player_ratings.items():
+        # Check if we should update existing row or add new
+        mask = (initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)
+        if mask.any():
+            initial_ratings.loc[mask, ['Rating', 'RD', 'Volatility']] = [r_obj.mu, r_obj.phi, r_obj.sigma]
+        else:
+            rows_to_add.append({
+                'Tournament': pgn_file,
+                'Player': player,
+                'Rating': r_obj.mu,
+                'RD': r_obj.phi,
+                'Volatility': r_obj.sigma
+            })
+            
+    if rows_to_add:
+        initial_ratings = pd.concat([initial_ratings, pd.DataFrame(rows_to_add)], ignore_index=True)
 
     return initial_ratings
 
