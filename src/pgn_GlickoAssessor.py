@@ -233,6 +233,13 @@ def main():
 
                 # Outer merge to keep all records
                 final_df = final_df.merge(additional_data, on=['Tournament', 'Player'], how='outer')
+                
+                # Coalesce AvgElo if it exists in both (resolves AvgElo_x / AvgElo_y)
+                if 'AvgElo_x' in final_df.columns and 'AvgElo_y' in final_df.columns:
+                    # Prefer input data (y) over calculated (x), fill missing input with calculated
+                    final_df['AvgElo'] = final_df['AvgElo_y'].combine_first(final_df['AvgElo_x'])
+                    final_df.drop(columns=['AvgElo_x', 'AvgElo_y'], inplace=True)
+                
                 print(f"Merged with additional data. Total rows: {len(final_df)}")
             except Exception as e:
                 print(f"Error reading/merging {args.input_csv}: {e}")
