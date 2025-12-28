@@ -3,6 +3,7 @@
 #from GlickoAssessor.glicko2 import Rating
 import os
 import glob
+import argparse
 import pandas as pd
 from GlickoAssessor.glicko_assessor import GlickoAssessor, read_games, get_player_names
 from GlickoAssessor.glicko2 import Rating, Glicko2
@@ -39,23 +40,45 @@ def process_tournament(pgn_file, initial_ratings):
 
     # Local cache for player ratings: {player_name: RatingObject}
     player_ratings = {}
+    
+    # Metadata collections
+    tournament_dates = []
+    player_elos = {} # {player_name: [list_of_elos]}
 
-    # 1. Initialize ratings for all players linked to this tournament from DataFrame or Defaults
-    # Identify all players participating in this tournament
+    # 1. Initialize ratings and collect metadata
     participants = set()
-    for p1, p2, _ in games:
+    for game in games:
+        p1 = game['White']
+        p2 = game['Black']
         participants.add(p1)
         participants.add(p2)
+        
+        # Collect dates
+        if game['Date'] and '?' not in game['Date']:
+            tournament_dates.append(game['Date'])
+            
+        # Collect Elos
+        if p1 not in player_elos: player_elos[p1] = []
+        if p2 not in player_elos: player_elos[p2] = []
+        
+        if game['WhiteElo']: player_elos[p1].append(float(game['WhiteElo']))
+        if game['BlackElo']: player_elos[p2].append(float(game['BlackElo']))
+
+    # Determine StartDate and EndDate
+    start_date = min(tournament_dates) if tournament_dates else None
+    end_date = max(tournament_dates) if tournament_dates else None
+
+    # Calculate AvgElo for each player
+    player_avg_elos = {}
+    for p in participants:
+         elos = player_elos.get(p, [])
+         if elos:
+             player_avg_elos[p] = int(sum(elos) / len(elos))
+         else:
+             player_avg_elos[p] = None
 
     for player in participants:
         # Check if player exists in initial_ratings for this tournament
-        # Note: The original logic seemed to imply we might carry over ratings, but the filter 
-        # checked (Tournament == pgn_file) & (Player == player), which implies reading back 
-        # what we essentially just initialized or calculated. 
-        # If we assume 'initial_ratings' contains prior knowledge, we should look it up.
-        # But here, we just check if we have data for this specific file intervention.
-        # Let's stick to the logic of checking the passed DataFrame.
-        
         rating_info = initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)]
         
         if not rating_info.empty:
@@ -66,32 +89,13 @@ def process_tournament(pgn_file, initial_ratings):
             player_ratings[player] = Rating(mu=2500, phi=50, sigma=0.05)
 
     # 2. Process games and update ratings
-    for p1_name, p2_name, result in games:
-        # result is for p1 (W). If 1.0, p1 wins. 0.0, p1 loses. 0.5 draw.
-        # Glicko2 implementation conventions may vary, assuming env.rate takes (rating, opponent_rating, score)
-        # But env.rate in the original snippet took 2 args, likely returning a NEW rating object for the first arg.
-        # Wait, standard Glicko2 usually processes a batch period. 
-        # If env.rate returns a single updated rating, it's likely: new_r1 = env.rate(r1, [(r2, score)]) or similar.
-        # However, looking at the previous code: updated_rating = env.rate(Rating(...), Rating(...))
-        # This implies a 1-on-1 update function which might not be standard Glicko2 (which uses periods), 
-        # but GlickoAssessor wrapper might behave like Glicko-1 or instantaneous Glicko-2.
-        # We will follow the signature: env.rate(player_rating, opponent_rating, score_for_player)
-        # BUT the original code call was: env.rate(Rating(...), Rating(...)) -- NO SCORE PASSED?
-        # That is suspicious. standard glicko2 `rate` method usually takes a list of results?
-        # OR maybe `GlickoAssessor.rate` takes (player, opponent, result)?
-        # Let's check imports. `from GlickoAssessor.glicko_assessor import GlickoAssessor`
-        # Without seeing `glicko_assessor.py` I must infer.
-        # The user provided error snippet didn't fail on `env.rate`, it failed on unpacking.
-        # I'll assume `env.rate(r1, r2, result)` or similar. 
-        # Wait, the original code had: `updated_rating = env.rate(Rating(...), Rating(...))` 
-        # It completely missed the score! 
-        # It's highly likely `env.rate` expects more args or `game` was implicit? No.
-        # I will assume the standard usage: r1_new = env.rate(r1, r2, result)
-        
+    for game in games:
+        p1_name = game['White']
+        p2_name = game['Black']
+        result = game['Result']
+
         r1 = player_ratings[p1_name]
         r2 = player_ratings[p2_name]
-
-
         
         # Update P1 based on P2
         # Use env.rate(rating, [(score, opponent_rating)]) - Confirmed order
@@ -101,30 +105,38 @@ def process_tournament(pgn_file, initial_ratings):
            
            player_ratings[p1_name] = new_r1
            player_ratings[p2_name] = new_r2
-
            
         except TypeError as e:
            print(f"Error rating game {p1_name} vs {p2_name}: {e}")
            pass
 
     # 3. Save back to DataFrame
-    # We want to UPDATE initial_ratings with the final values from this tournament.
-    # Since we are iterating PGNs, we likely want to accumulate.
-    # The original code structure suggests `initial_ratings` grows.
-    
     rows_to_add = []
+    
+    # Ensure DataFrame has new columns if they don't exist
+    for col in ['StartDate', 'EndDate', 'AvgElo']:
+        if col not in initial_ratings.columns:
+            initial_ratings[col] = None
+
     for player, r_obj in player_ratings.items():
+        avg_elo = player_avg_elos.get(player)
+        
         # Check if we should update existing row or add new
         mask = (initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)
+        
         if mask.any():
-            initial_ratings.loc[mask, ['Rating', 'RD', 'Volatility']] = [r_obj.mu, r_obj.phi, r_obj.sigma]
+            initial_ratings.loc[mask, ['Rating', 'RD', 'Volatility', 'StartDate', 'EndDate', 'AvgElo']] = \
+                [r_obj.mu, r_obj.phi, r_obj.sigma, start_date, end_date, avg_elo]
         else:
             rows_to_add.append({
                 'Tournament': pgn_file,
                 'Player': player,
                 'Rating': r_obj.mu,
                 'RD': r_obj.phi,
-                'Volatility': r_obj.sigma
+                'Volatility': r_obj.sigma,
+                'StartDate': start_date,
+                'EndDate': end_date,
+                'AvgElo': avg_elo
             })
             
     if rows_to_add:
@@ -134,41 +146,65 @@ def process_tournament(pgn_file, initial_ratings):
 
 def read_games(fn):
     """
-    Returns a list of results of the form (p1, p2, score).
+    Returns a list of dictionaries with game info.
     """
     ret = []
-    wp, bp = None, None
-    result = 0.5  # Default draw value
-
+    game_info = {'White': None, 'Black': None, 'Result': 0.5, 'Date': None, 'WhiteElo': None, 'BlackElo': None}
+    
     with open(fn) as h:
         for lines in h:
             line = lines.strip()
             
             if line.startswith("[White "):
-                wp = line.split('"')[1].strip()
+                game_info['White'] = line.split('"')[1].strip()
             elif line.startswith("[Black "):
-                bp = line.split('"')[1].strip()
+                game_info['Black'] = line.split('"')[1].strip()
+            elif line.startswith("[Date "):
+                game_info['Date'] = line.split('"')[1].strip()
+            elif line.startswith("[WhiteElo "):
+                try:
+                    game_info['WhiteElo'] = int(line.split('"')[1].strip())
+                except ValueError:
+                    pass
+            elif line.startswith("[BlackElo "):
+                try:
+                    game_info['BlackElo'] = int(line.split('"')[1].strip())
+                except ValueError:
+                    pass
             elif line.startswith("[Result"):
-                result_str = '0.5'  # Default draw value
+                result_str = '0.5' 
                 if '1-0' in line: 
                     result_str = '1'
                 elif '0-1' in line:
                     result_str = '0'
+                game_info['Result'] = float(result_str)
+            
+            if line.startswith("[Event "):
+                 # New game starting. If we have a previous game recorded, save it.
+                 if game_info['White'] and game_info['Black']:
+                     ret.append(game_info)
+                 
+                 # Reset
+                 game_info = {'White': None, 'Black': None, 'Result': 0.5, 'Date': None, 'WhiteElo': None, 'BlackElo': None}
 
-                result = float(result_str)
-                
-            if wp and bp and result is not None:
-                ret.append((wp, bp, result))
-                wp, bp, result = None, None, 0.5
-
+    # Push last game
+    if game_info['White'] and game_info['Black']:
+         ret.append(game_info)
+         
     return ret
 
 def main():
-    directory = r'C:\Users\Public\Github\chess-evaluation-tools\data\WCC_Lichess'
-    output_csv = r'C:\Users\Public\Github\chess-evaluation-tools\data\Glicko-2_ratings.csv'
+    parser = argparse.ArgumentParser(description="Calculate Glicko-2 ratings from PGN files.")
+    parser.add_argument('--directory', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\WCC_Lichess', help='Directory containing PGN files')
+    parser.add_argument('--output_csv', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\Glicko-2_ratings.csv', help='Output CSV file path')
+    
+    args = parser.parse_args()
+    
+    directory = args.directory
+    output_csv = args.output_csv
 
     # Initialize the ratings DataFrame with placeholder values
-    initial_ratings = pd.DataFrame(columns=['Tournament', 'Player', 'Rating', 'RD', 'Volatility'])
+    initial_ratings = pd.DataFrame(columns=['Tournament', 'Player', 'Rating', 'RD', 'Volatility', 'StartDate', 'EndDate', 'AvgElo'])
     
     pgn_files = filter_pgn_files(directory)
     
