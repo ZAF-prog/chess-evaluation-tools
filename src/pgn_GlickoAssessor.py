@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-#from glicko_assessor import GlickoAssessor, read_games, get_player_names, Rating
-#from GlickoAssessor.glicko_assessor import GlickoAssessor, read_games, get_player_names, Rating
+#from GlickoAssessor.glicko_assessor import Glicko2, read_games, get_player_names, GlickoAssessor
+#from GlickoAssessor.glicko2 import Rating
 import os
 import glob
 import pandas as pd
@@ -28,43 +28,44 @@ def process_tournament(pgn_file, initial_ratings):
     env = GlickoAssessor(dbfile='example.db', init_rating=None, init_rating_deviation=None, init_volatility=None)
     
     for player in get_player_names(pgn_file):
-        if (initial_ratings is not None) and ((initial_ratings['Tournament'] == pgn_file).any() and (initial_ratings['Player'] == player).any()):
-            continue  # Skip already processed combination
-
-        try:
-            # Assuming initial ratings from 'AvgElo' column
-            avg_elo = initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)]['AvgElo'].values[0]
-            rating = int(avg_elo)
-            rd = 50
-            volatility = 0.05
-        except Exception:
-            # If the combination is not found in the initial ratings, initialize with default values
-            # defaults are chosen for GM level players
-            rating = 2500
+        if initial_ratings is None:
+            rating = 2500  # Defaults for GM level players
             rd = 50
             volatility = 0.05
 
-        # Create new entry or update existing entry
-        if (initial_ratings is None):
-            initial_ratings = pd.DataFrame(columns=['Tournament', 'Player', 'Rating', 'RD', 'Volatility'])
-        
-        if (initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)].empty):
             new_row = {'Tournament': [pgn_file],
                         'Player': [player],
                         'Rating': [rating],
                         'RD': [rd],
                         'Volatility': [volatility]}
             
-            initial_ratings = pd.concat([initial_ratings, pd.DataFrame(new_row)], ignore_index=True)
+            initial_ratings = pd.DataFrame(new_row, index=[0])
         else:
-            initial_ratings.at[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player), ['Rating', 'RD', 'Volatility']] = [rating, rd, volatility]
-        
+            if (initial_ratings['Tournament'] == pgn_file).any() and (initial_ratings['Player'] == player).any():
+                continue  # Skip already processed combination
+
+            rating_info = initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)]
+            if not rating_info.empty:
+                rating, rd, volatility = rating_info[['Rating', 'RD', 'Volatility']].values[0]
+            else:
+                rating = 2500  
+                rd = 50
+                volatility = 0.05
+
         # Simulate Glicko calculation (using the full algorithm)
-        result_data = [(player, opponent, score) for opponent, score in games if player != opponent]
-        
-        updated_rating = env.rate(Rating(mu=rating, phi=rd, sigma=volatility), result_data)
-        
-        initial_ratings.at[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player), ['Rating', 'RD', 'Volatility']] = [updated_rating.mu, updated_rating.phi, updated_rating.sigma]
+        for game in games:
+            print(f"Game: {game}")  # Debugging print statement
+
+            try:
+                opponent, score = game
+            except ValueError as e:
+                print(f"Error unpacking game: {game} with error: {e}")
+                continue
+
+            updated_rating = env.rate(Rating(mu=rating, phi=rd, sigma=volatility), Rating(mu=2500, phi=350, sigma=0.06))
+
+            rating, rd, volatility = updated_rating.mu, updated_rating.phi, updated_rating.sigma
+            initial_ratings.loc[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player), ['Rating', 'RD', 'Volatility']] = [rating, rd, volatility]
 
     return initial_ratings
 
@@ -73,7 +74,7 @@ def main():
     output_csv = r'C:\Users\Public\Github\chess-evaluation-tools\data\Glicko-2_ratings.csv'
 
     # Initialize the ratings DataFrame with placeholder values
-    initial_ratings = None
+    initial_ratings = pd.DataFrame(columns=['Tournament', 'Player', 'Rating', 'RD', 'Volatility'])
     
     pgn_files = filter_pgn_files(directory)
     
@@ -81,7 +82,7 @@ def main():
         initial_ratings = process_tournament(pgn_file, initial_ratings)
 
     # Save updated DataFrame back to CSV
-    if initial_ratings is not None:
+    if not initial_ratings.empty:
         initial_ratings.to_csv(output_csv, index=False)
         print(f"Updated ratings saved to {output_csv}")
     else:
