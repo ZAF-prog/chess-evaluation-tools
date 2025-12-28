@@ -18,23 +18,23 @@ def filter_pgn_files(directory):
             all_pgn_files.append(full_path)
     return all_pgn_files
 
-def process_tournament(pgn_file, initial_ratings):
+def process_tournament(pgn_file, history_ratings):
     # Extract year from the filename (assuming format YYYY_*)
     try:
         year_str = os.path.basename(pgn_file).split('_', 1)[0]
         year = int(year_str)
     except (ValueError, IndexError):
          print(f"Skipping {pgn_file}: Cannot extract year.")
-         return initial_ratings
+         return []
 
     if year < 1978 or year > 2023:
-        return initial_ratings
+        return []
 
     # Read games from PGN file
     games = read_games(pgn_file)
     if not games:
         print(f"No games found in {pgn_file}")
-        return initial_ratings
+        return []
 
     # Initialize Glicko environment
     env = Glicko2(mu=1500, phi=350, sigma=0.06)
@@ -79,17 +79,13 @@ def process_tournament(pgn_file, initial_ratings):
              player_avg_elos[p] = None
 
     for player in participants:
-        # Check if player exists in initial_ratings for this tournament
-        rating_info = initial_ratings[(initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)]
-        
-        if not rating_info.empty:
-            r, rd, vol = rating_info[['Rating', 'RD', 'Volatility']].values[0]
-            player_ratings[player] = Rating(mu=r, phi=rd, sigma=vol)
+        # Check if player exists in history_ratings (carry over from previous tournaments)
+        if player in history_ratings:
+            player_ratings[player] = history_ratings[player]
         else:
-            # Default GM ratings
+            # Default GM ratings for new players
             player_ratings[player] = Rating(mu=2500, phi=50, sigma=0.05)
 
-    # 2. Process games and update ratings
     # 2. Process games and collect results (Batch Processing)
     player_results = defaultdict(list)
 
@@ -116,39 +112,28 @@ def process_tournament(pgn_file, initial_ratings):
             except TypeError as e:
                 print(f"Error rating player {player}: {e}")
 
-    # 4. Save back to DataFrame
+    # Update history_ratings with the new ratings at the end of the tournament
+    for player, r_obj in player_ratings.items():
+        history_ratings[player] = r_obj
+
+    # 4. Return new rows
     rows_to_add = []
     
-    # Ensure DataFrame has new columns if they don't exist
-    for col in ['StartDate', 'EndDate', 'AvgElo']:
-        if col not in initial_ratings.columns:
-            initial_ratings[col] = None
-
     for player, r_obj in player_ratings.items():
         avg_elo = player_avg_elos.get(player)
         
-        # Check if we should update existing row or add new
-        mask = (initial_ratings['Tournament'] == pgn_file) & (initial_ratings['Player'] == player)
-        
-        if mask.any():
-            initial_ratings.loc[mask, ['Rating', 'RD', 'Volatility', 'StartDate', 'EndDate', 'AvgElo']] = \
-                [r_obj.mu, r_obj.phi, r_obj.sigma, start_date, end_date, avg_elo]
-        else:
-            rows_to_add.append({
-                'Tournament': pgn_file,
-                'Player': player,
-                'Rating': r_obj.mu,
-                'RD': r_obj.phi,
-                'Volatility': r_obj.sigma,
-                'StartDate': start_date,
-                'EndDate': end_date,
-                'AvgElo': avg_elo
-            })
-            
-    if rows_to_add:
-        initial_ratings = pd.concat([initial_ratings, pd.DataFrame(rows_to_add)], ignore_index=True)
+        rows_to_add.append({
+            'Tournament': pgn_file,
+            'Player': player,
+            'Rating': r_obj.mu,
+            'RD': r_obj.phi,
+            'Volatility': r_obj.sigma,
+            'StartDate': start_date,
+            'EndDate': end_date,
+            'AvgElo': avg_elo
+        })
 
-    return initial_ratings
+    return rows_to_add
 
 def read_games(fn):
     """
@@ -210,16 +195,30 @@ def main():
     output_csv = args.output_csv
 
     # Initialize the ratings DataFrame with placeholder values
-    initial_ratings = pd.DataFrame(columns=['Tournament', 'Player', 'Rating', 'RD', 'Volatility', 'StartDate', 'EndDate', 'AvgElo'])
+    # initial_ratings was confusingly named, it is now just an accumulator.
+    # We will build the list of dicts first.
+    all_rating_rows = []
     
+    # State dictionary to carry ratings across tournaments
+    history_ratings = {} # {player_name: RatingObject}
+
     pgn_files = filter_pgn_files(directory)
     
     for pgn_file in pgn_files:
-        initial_ratings = process_tournament(pgn_file, initial_ratings)
+        new_rows = process_tournament(pgn_file, history_ratings)
+        all_rating_rows.extend(new_rows)
 
     # Save updated DataFrame back to CSV
-    if not initial_ratings.empty:
-        initial_ratings.to_csv(output_csv, index=False)
+    if all_rating_rows:
+        final_df = pd.DataFrame(all_rating_rows)
+        # Reorder columns to match expectation
+        cols = ['Tournament', 'Player', 'Rating', 'RD', 'Volatility', 'StartDate', 'EndDate', 'AvgElo']
+        # Ensure all cols exist
+        for c in cols:
+            if c not in final_df.columns: final_df[c] = None
+        final_df = final_df[cols]
+        
+        final_df.to_csv(output_csv, index=False)
         print(f"Updated ratings saved to {output_csv}")
     else:
         print("No ratings were processed.")
