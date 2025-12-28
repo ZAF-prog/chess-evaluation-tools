@@ -7,11 +7,12 @@ import argparse
 import pandas as pd
 from GlickoAssessor.glicko_assessor import GlickoAssessor, read_games, get_player_names
 from GlickoAssessor.glicko2 import Rating, Glicko2
+from collections import defaultdict
 
 def filter_pgn_files(directory):
     """Filter PGN files based on year."""
     all_pgn_files = []
-    for filename in os.listdir(directory):
+    for filename in sorted(os.listdir(directory)):
         if (filename.startswith('19') or filename.startswith('20')) and filename.endswith('.pgn'):
             full_path = os.path.join(directory, filename)
             all_pgn_files.append(full_path)
@@ -89,6 +90,9 @@ def process_tournament(pgn_file, initial_ratings):
             player_ratings[player] = Rating(mu=2500, phi=50, sigma=0.05)
 
     # 2. Process games and update ratings
+    # 2. Process games and collect results (Batch Processing)
+    player_results = defaultdict(list)
+
     for game in games:
         p1_name = game['White']
         p2_name = game['Black']
@@ -97,20 +101,22 @@ def process_tournament(pgn_file, initial_ratings):
         r1 = player_ratings[p1_name]
         r2 = player_ratings[p2_name]
         
-        # Update P1 based on P2
-        # Use env.rate(rating, [(score, opponent_rating)]) - Confirmed order
-        try:
-           new_r1 = env.rate(r1, [(result, r2)])
-           new_r2 = env.rate(r2, [(1.0 - result, r1)])
-           
-           player_ratings[p1_name] = new_r1
-           player_ratings[p2_name] = new_r2
-           
-        except TypeError as e:
-           print(f"Error rating game {p1_name} vs {p2_name}: {e}")
-           pass
+        # Store match results for batch update.
+        # r1 and r2 are the ratings at the START of the tournament/rating period.
+        player_results[p1_name].append((result, r2))
+        player_results[p2_name].append((1.0 - result, r1))
 
-    # 3. Save back to DataFrame
+    # 3. Update ratings based on collected results
+    for player in participants:
+        if player in player_results:
+            try:
+                # env.rate calculates the new rating based on the list of (score, opponent_rating)
+                new_rating = env.rate(player_ratings[player], player_results[player])
+                player_ratings[player] = new_rating
+            except TypeError as e:
+                print(f"Error rating player {player}: {e}")
+
+    # 4. Save back to DataFrame
     rows_to_add = []
     
     # Ensure DataFrame has new columns if they don't exist
