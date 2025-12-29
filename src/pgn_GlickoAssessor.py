@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# This script uses code from GlickoAssessor (glicko_assessor and glicko2) by Ferdinand Mosca
+# Source: https://github.com/fsmosca/GlickoAssessor
 #from GlickoAssessor.glicko_assessor import Glicko2, read_games, get_player_names, GlickoAssessor
 #from GlickoAssessor.glicko2 import Rating
 import os
