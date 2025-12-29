@@ -1,0 +1,3 @@
+Tournament,Player,Elo_Rating,Total_Games,Total_Moves,Elo_TPR,avg_gi,avg_acpl
+1886_Steinitz-Zukertort.pgn,"Steinitz, William",0.0,20,839,50.0,154.71,46.98
+1886_Steinitz-Zukertort.pgn,"Zukertort, Johannes Hermann",0.0,20,839,-50.0,145.77,78.0

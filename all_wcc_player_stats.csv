@@ -1,0 +1,111 @@
+Tournament,Player,Elo_Rating,Total_Games,Total_Moves,Elo_TPR,avg_gi,avg_acpl
+1886_Steinitz-Zukertort.pgn,"Steinitz, William",0.0,20,839,50.0,154.71,46.98
+1886_Steinitz-Zukertort.pgn,"Zukertort, Johannes Hermann",0.0,20,839,-50.0,145.77,78.0
+1889_Steinitz-Chigorin.pgn,"Chigorin, Mikhail",0.0,17,761,-47.0,150.17,70.31
+1889_Steinitz-Chigorin.pgn,"Steinitz, William",0.0,17,763,47.0,158.03,65.08
+1890_Steinitz-Gunsburg.pgn,"Gunsberg, Isidor",0.0,19,739,-21.0,149.13,51.85
+1890_Steinitz-Gunsburg.pgn,"Steinitz, William",0.0,19,739,21.0,154.6,35.26
+1892_Steinitz-Chigorin_II.pgn,"Chigorin, Mikhail",0.0,23,839,-17.0,148.47,127.36
+1892_Steinitz-Chigorin_II.pgn,"Steinitz, William",0.0,23,839,17.0,156.54,161.75
+1894_Steinitz-Lasker.pgn,"Lasker, Emanuel",0.0,19,988,53.0,151.92,38.07
+1894_Steinitz-Lasker.pgn,"Steinitz, William",0.0,19,983,-53.0,146.58,37.22
+1896_Lasker-Steinitz_II.pgn,"Lasker, Emanuel",0.0,17,838,94.0,147.22,50.0
+1896_Lasker-Steinitz_II.pgn,"Steinitz, William",0.0,17,833,-94.0,140.94,93.42
+1907_Lasker-Marshall.pgn,"Lasker, Emanuel",0.0,15,666,107.0,164.01,101.59
+1907_Lasker-Marshall.pgn,"Marshall, Frank James",0.0,15,665,-107.0,142.84,156.97
+1908_Lasker-Tarrasch.pgn,"Lasker, Emanuel",0.0,16,831,62.0,154.53,36.71
+1908_Lasker-Tarrasch.pgn,"Tarrasch, Siegbert",0.0,16,827,-62.0,141.69,131.9
+1910_Lasker-Janowski.pgn,"Janowski, Dawid Markelowicz",0.0,11,548,-145.0,147.86,35.91
+1910_Lasker-Janowski.pgn,"Lasker, Emanuel",0.0,11,553,145.0,156.48,18.49
+1910_Lasker-Schlechter.pgn,"Lasker, Emanuel",0.0,10,522,0.0,146.07,31.48
+1910_Lasker-Schlechter.pgn,"Schlechter, Carl",0.0,10,522,0.0,149.73,15.44
+1921_Lasker-Capablanca.pgn,"Capablanca, Jose Raul",0.0,14,573,57.0,158.76,29.65
+1921_Lasker-Capablanca.pgn,"Lasker, Emanuel",0.0,14,573,-57.0,153.01,47.45
+1927_Capablanca-Alekhine.pgn,"Alekhine, Alexander",0.0,34,1389,18.0,160.06,27.77
+1927_Capablanca-Alekhine.pgn,"Capablanca, Jose Raul",0.0,34,1388,-18.0,155.33,25.08
+1929_Alekhine-Bogoljubow.pgn,"Alekhine, Alexander",0.0,25,1221,48.0,152.26,37.81
+1929_Alekhine-Bogoljubow.pgn,"Bogoljubow, Efim",0.0,25,1221,-48.0,150.16,88.04
+1934_Alekhine-Bogoljubow_II.pgn,"Alekhine, Alexander",0.0,26,1326,38.0,150.38,27.87
+1934_Alekhine-Bogoljubow_II.pgn,"Bogoljubow, Efim",0.0,26,1322,-38.0,143.28,54.22
+1935_Alekhine-Euwe.pgn,"Alekhine, Alexander",0.0,30,1310,-7.0,153.27,39.13
+1935_Alekhine-Euwe.pgn,"Euwe, Max",0.0,30,1314,7.0,150.34,31.27
+1937_Alekhine-Euwe_II.pgn,"Alekhine, Alexander",0.0,25,1089,48.0,153.7,34.86
+1937_Alekhine-Euwe_II.pgn,"Euwe, Max",0.0,25,1084,-48.0,149.4,51.47
+1948_World_Championship_Tournament.pgn,"Botvinnik, Mikhail",0.0,20,856,80.0,156.77,24.51
+1948_World_Championship_Tournament.pgn,"Euwe, Max",0.0,20,748,-120.0,146.46,61.79
+1948_World_Championship_Tournament.pgn,"Keres, Paul",0.0,20,842,10.0,151.93,59.25
+1948_World_Championship_Tournament.pgn,"Reshevsky, Samuel Herman",0.0,20,835,10.0,147.31,32.95
+1948_World_Championship_Tournament.pgn,"Smyslov, Vassily",0.0,20,943,20.0,150.45,19.41
+1951_Botvinnik-Bronstein.pgn,"Botvinnik, Mikhail",0.0,24,1168,0.0,147.54,30.95
+1951_Botvinnik-Bronstein.pgn,"Bronstein, David I",0.0,24,1171,0.0,149.16,18.45
+1954_Botvinnik-Smyslov.pgn,"Botvinnik, Mikhail",0.0,24,990,0.0,154.97,22.26
+1954_Botvinnik-Smyslov.pgn,"Smyslov, Vassily",0.0,24,992,0.0,151.84,21.76
+1957_Botvinnik-Smyslov_II.pgn,"Botvinnik, Mikhail",0.0,22,870,-27.0,152.82,18.29
+1957_Botvinnik-Smyslov_II.pgn,"Smyslov, Vassily",0.0,22,873,27.0,155.62,17.49
+1958_Botvinnik-Smyslov_III.pgn,"Botvinnik, Mikhail",0.0,23,1047,17.0,151.07,43.45
+1958_Botvinnik-Smyslov_III.pgn,"Smyslov, Vassily",0.0,23,1046,-17.0,152.68,30.61
+1960_Botvinnik-Tal.pgn,"Botvinnik, Mikhail",0.0,21,914,-38.0,150.95,21.67
+1960_Botvinnik-Tal.pgn,"Tal, Mikhail",0.0,21,916,38.0,151.75,18.93
+1961_Botvinnik-Tal_II.pgn,"Botvinnik, Mikhail",0.0,21,1104,48.0,150.13,27.53
+1961_Botvinnik-Tal_II.pgn,"Tal, Mikhail",0.0,21,1101,-48.0,145.99,45.35
+1963_Botvinnik-Petrosian.pgn,"Botvinnik, Mikhail",0.0,22,983,-27.0,153.1,16.78
+1963_Botvinnik-Petrosian.pgn,"Petrosian, Tigran V",0.0,22,984,27.0,153.88,15.81
+1966_Petrosian-Spassky.pgn,"Petrosian, Tigran V",0.0,24,1056,8.0,150.77,17.95
+1966_Petrosian-Spassky.pgn,"Spassky, Boris V.",0.0,24,1052,-8.0,152.57,28.27
+1969_Petrosian-Spassky_II.pgn,"Petrosian, Tigran V",0.0,23,997,-17.0,154.76,26.68
+1969_Petrosian-Spassky_II.pgn,"Spassky, Boris V.",0.0,23,999,17.0,156.62,18.44
+1972_Spassky-Fischer.pgn,"Fischer, Robert James",2785.0,20,906,2835.0,157.69,17.17
+1972_Spassky-Fischer.pgn,"Spassky, Boris V.",2660.0,20,907,2610.0,148.83,28.09
+1978_Karpov-Korchnoi.pgn,"Karpov, Anatoly",2725.0,32,1518,2731.0,152.04,18.14
+1978_Karpov-Korchnoi.pgn,"Korchnoi, Viktor",2665.0,32,1521,2659.0,148.13,38.23
+1981_Karpov-Korchnoi_II.pgn,"Karpov, Anatoly",2700.0,18,802,2744.0,157.98,40.05
+1981_Karpov-Korchnoi_II.pgn,"Korchnoi, Viktor",2695.0,18,797,2651.0,155.69,52.03
+1984_Karpov-Kasparov.pgn,"Karpov, Anatoly",2705.0,48,1641,2713.0,159.94,13.16
+1984_Karpov-Kasparov.pgn,"Kasparov, Garry",2715.0,48,1648,2707.0,156.53,13.85
+1985_Karpov-Kasparov_II.pgn,"Karpov, Anatoly",2720.0,24,930,2703.0,154.78,30.01
+1985_Karpov-Kasparov_II.pgn,"Kasparov, Garry",2700.0,24,932,2717.0,157.74,20.61
+1986_Karpov-Kasparov_III.pgn,"Karpov, Anatoly",2705.0,24,892,2697.0,156.55,14.46
+1986_Karpov-Kasparov_III.pgn,"Kasparov, Garry",2740.0,24,893,2748.0,158.99,14.05
+1987_Karpov-Kasparov_IV.pgn,"Karpov, Anatoly",2700.0,24,971,2700.0,153.1,15.05
+1987_Karpov-Kasparov_IV.pgn,"Kasparov, Garry",2740.0,24,978,2740.0,155.95,15.8
+1990_Karpov-Kasparov_V.pgn,"Karpov, Anatoly",2730.0,24,1064,2722.0,149.75,26.44
+1990_Karpov-Kasparov_V.pgn,"Kasparov, Garry",2800.0,24,1069,2808.0,151.7,25.57
+1993_Kasparov-Short.pgn,"Kasparov, Garry",2805.0,20,783,2855.0,157.67,17.77
+1993_Kasparov-Short.pgn,"Short, Nigel D",2655.0,20,778,2605.0,152.61,26.34
+1995_Kasparov-Anand.pgn,"Anand, Viswanathan",2725.0,18,533,2692.0,157.27,14.91
+1995_Kasparov-Anand.pgn,"Kasparov, Garry",2795.0,18,537,2828.0,161.16,10.95
+2000_Kasparov-Kramnik.pgn,"Kasparov, Garry",2849.0,15,564,2822.0,158.29,13.93
+2000_Kasparov-Kramnik.pgn,"Kramnik, Vladimir",2770.0,15,567,2797.0,156.28,10.97
+2004_Kramnik-Leko.pgn,"Kramnik, Vladimir",2770.0,14,496,2770.0,157.24,11.84
+2004_Kramnik-Leko.pgn,"Leko, Peter",2741.0,14,496,2741.0,152.63,18.87
+2006_Kramnik-Topalov.pgn,"Kramnik, Vladimir",2743.0,15,748,2770.0,157.24,41.68
+2006_Kramnik-Topalov.pgn,"Topalov, Veselin",2813.0,15,751,2786.0,152.93,17.37
+2007_World_Championship_Tournament.pgn,"Anand, Viswanathan",2792.0,14,549,2849.0,159.32,13.57
+2007_World_Championship_Tournament.pgn,"Aronian, Levon",2750.0,14,537,2721.0,153.39,20.09
+2007_World_Championship_Tournament.pgn,"Gelfand, Boris",2733.0,14,544,2762.0,156.6,18.45
+2007_World_Championship_Tournament.pgn,"Grischuk, Alexander",2726.0,14,601,2683.0,152.27,48.33
+2007_World_Championship_Tournament.pgn,"Kramnik, Vladimir",2769.0,14,488,2798.0,158.49,16.14
+2007_World_Championship_Tournament.pgn,"Leko, Peter",2751.0,14,576,2751.0,155.08,12.2
+2007_World_Championship_Tournament.pgn,"Morozevich, Alexander",2758.0,14,633,2729.0,152.77,26.67
+2007_World_Championship_Tournament.pgn,"Svidler, Peter",2735.0,14,454,2721.0,156.16,15.27
+2008_Anand-Kramnik.pgn,"Anand, Viswanathan",2783.0,11,388,2819.0,159.16,33.69
+2008_Anand-Kramnik.pgn,"Kramnik, Vladimir",2772.0,11,388,2736.0,155.25,37.1
+2010_Anand-Topalov.pgn,"Anand, Viswanathan",2787.0,12,626,2804.0,154.46,18.73
+2010_Anand-Topalov.pgn,"Topalov, Veselin",2805.0,12,627,2788.0,155.9,44.79
+2012_Anand-Gelfand.pgn,"Anand, Viswanathan",2792.0,16,577,2804.0,157.72,16.01
+2012_Anand-Gelfand.pgn,"Gelfand, Boris",2728.0,16,573,2715.0,155.59,16.48
+2013_Anand-Carlsen.pgn,"Anand, Viswanathan",2775.0,10,438,2715.0,152.71,14.57
+2013_Anand-Carlsen.pgn,"Carlsen, Magnus",2870.0,10,438,2930.0,158.54,10.16
+2014_Anand-Carlsen_II.pgn,"Anand, Viswanathan",2792.0,11,496,2756.0,154.23,16.38
+2014_Anand-Carlsen_II.pgn,"Carlsen, Magnus",2863.0,11,497,2899.0,159.78,13.82
+2016_Carlsen-Karjakin.pgn,"Carlsen, Magnus",2863.0,16,834,2888.0,151.32,12.99
+2016_Carlsen-Karjakin.pgn,"Karjakin, Sergey",2784.0,16,834,2758.0,155.35,26.31
+2018_Carlsen-Caruana.pgn,"Carlsen, Magnus",2844.0,15,764,2884.0,159.28,10.25
+2018_Carlsen-Caruana.pgn,"Caruana, Fabiano",2823.0,15,764,2783.0,151.24,14.08
+2021_Carlsen-Nepomniachtchi.pgn,?,0.0,84,1334,0.0,166.84,0.0
+2021_Carlsen-Nepomniachtchi_WorldChamp2021.pgn,"Carlsen,M",2855.0,11,568,2928.0,170.22,0.0
+2021_Carlsen-Nepomniachtchi_WorldChamp2021.pgn,"Nepomniachtchi,I",2782.0,11,568,2709.0,163.47,0.0
+2023_Ding-Nepomniachtchi.pgn,"Ding, Liren",2797.0,18,841,2808.0,157.43,24.58
+2023_Ding-Nepomniachtchi.pgn,"Nepomniachtchi, Ian",2787.0,18,839,2776.0,158.01,44.83
+2024_Ding-Dommaraju.pgn,"Ding, Liren",2728.0,14,635,2714.0,166.18,0.0
+2024_Ding-Dommaraju.pgn,Gukesh D,2783.0,14,636,2797.0,167.51,0.0

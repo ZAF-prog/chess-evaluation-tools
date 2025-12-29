@@ -111,16 +111,13 @@ def process_game(game):
         if cp is not None:
             pawns_list.append(cp / 100.0)
         else:
-            # print(f"DEBUG: No CP for move. Comment: '{node.comment}'")
             # If missing eval, repeat previous (simple interpolation or gap filling)
-            # Reference impl repeats previous if list > 1
             if len(pawns_list) > 0:
                 pawns_list.append(pawns_list[-1])
             else:
                 pawns_list.append(0.0)
                 
     if len(pawns_list) < 2:
-        print(f"DEBUG: Not enough pawns_list: {len(pawns_list)}")
         return None # Not analyzed
 
     # ACPL Calcs
@@ -263,18 +260,13 @@ def calculate_player_stats(pgn_file):
             except ValueError as e:
                 print(f"Error reading game in {pgn_file}: {e}")
                 break
-            if game is None: 
-                print("DEBUG: game is None, breaking loop")
+            if game is None:
                 break
-            
-            print(f"DEBUG: Read game with {len(list(game.mainline_moves()))} moves. Headers: {game.headers.get('Event')}")
             
             g_data = process_game(game)
             if g_data:
                 g_data['Tournament'] = tournament
                 games_data.append(g_data)
-            else:
-                 print("DEBUG: process_game returned None")
 
     if not games_data:
         return pd.DataFrame()
@@ -379,11 +371,11 @@ def generate_summary_stats(player_stats, summary_stats_path):
     return summary_stats
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate summary statistics from PGN file and merge with additional CSV.")
+    parser = argparse.ArgumentParser(description="Generate player statistics from PGN files and optionally merge with additional CSV.")
     parser.add_argument('pgn_file', nargs='?', help='PGN file containing chess games')
     parser.add_argument('--directory', type=str, default=r'C:\Users\Public\Github\chess-evaluation-tools\data\WCC_Lichess', help='Directory containing PGN files')
     parser.add_argument('--input_csv', help='Path to additional CSV to merge with player stats')
-    parser.add_argument('--output_csv', default=None, help='Output CSV file path for summary stats')
+    parser.add_argument('--output_csv', default=None, help='Output CSV file path for player stats')
     
     args = parser.parse_args()
 
@@ -394,7 +386,7 @@ def main():
         base, _ = os.path.splitext(args.input_csv)
         output_csv_path = f"{base}_TPR-stats.csv"
     else:
-        output_csv_path = 'summary_stats.csv'
+        output_csv_path = 'player_stats.csv'
 
     pgn_files = []
     if args.pgn_file:
@@ -430,16 +422,27 @@ def main():
         additional_data = pd.read_csv(args.input_csv)
         # Outer merge on ['Tournament', 'Player']
         player_stats = player_stats.merge(additional_data, on=['Tournament', 'Player'], how='outer')
-        # Coalesce columns if they exist in both (e.g., Elo)
-        for col in ['Elo', 'TPR', 'total_game_count', 'total_moves', 'avg_acpl', 'avg_gi', 'avg_missed_points', 'avg_missed_points_white', 'avg_missed_points_black', 'avg_gi_white', 'avg_gi_black', 'gi_median', 'missed_points_median']:
+        # Coalesce columns if they exist in both
+        for col in ['Elo', 'TPR', 'total_game_count', 'total_moves', 'avg_acpl', 'avg_gi']:
             if f'{col}_x' in player_stats.columns and f'{col}_y' in player_stats.columns:
                 player_stats[col] = player_stats[f'{col}_y'].combine_first(player_stats[f'{col}_x'])
                 player_stats.drop(columns=[f'{col}_x', f'{col}_y'], inplace=True)
     
     if not player_stats.empty:
-        # Generate summary stats
-        generate_summary_stats(player_stats, output_csv_path)
-        print(f"Summary statistics saved to {output_csv_path}")
+        # Rename columns to match required output format
+        output_df = player_stats[['Tournament', 'Player', 'Elo', 'total_game_count', 'total_moves', 'TPR', 'avg_gi', 'avg_acpl']].copy()
+        output_df.columns = ['Tournament', 'Player', 'Elo_Rating', 'Total_Games', 'Total_Moves', 'Elo_TPR', 'avg_gi', 'avg_acpl']
+        
+        # Round numeric columns for cleaner output
+        output_df['Elo_Rating'] = output_df['Elo_Rating'].round(0)
+        output_df['Elo_TPR'] = output_df['Elo_TPR'].round(0)
+        output_df['avg_gi'] = output_df['avg_gi'].round(2)
+        output_df['avg_acpl'] = output_df['avg_acpl'].round(2)
+        
+        # Save to CSV
+        output_df.to_csv(output_csv_path, index=False)
+        print(f"Player statistics saved to {output_csv_path}")
+        print(f"Total players: {len(output_df)}")
     else:
         print("No valid player statistics generated.")
 
