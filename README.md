@@ -16,7 +16,10 @@ The project is organized into four main directories to separate logic from asset
 | Directory | Content | Licensing Note |
 | :--- | :--- | :--- |
 | **`src/`** | Python scripts for data processing, accuracy score calculation, and statistical analysis. | MIT License |
+| **`src/GlickoAssessor`** | Python scripts for Glicko-2 calculation (not mirrored by this repo, masked by .gitignore). | no license |
+| **`src/drmehmetismail_World-Chess-Championships`** | Python scripts for Elo tournament performance calculation (not mirrored by this repo, masked by .gitignore). | no license |
 | **`data/`** | Collated CSV files containing game records and raw data for analysis. | CC BY 4.0 |
+| **`data/WCC_Lichess`** | Scrape PGN files containing WCC records, from Lichess study collections. | no license |
 | **`binaries/`** | Executable files, including the **Stockfish engine binary** used for generating accuracy scores. | N/A (External License) |
 | **`notes/`** | Plain text logs, research findings, and documentation notes. | CC BY 4.0 |
 
@@ -36,7 +39,7 @@ git lfs install
 
 # Clone the repository
 git clone https://github.com/ZAF-prog/chess-evaluation-tools/
-
+```
 ### 2. Other repos pulled for local use
 
 This repository uses the following repos for local use:
