@@ -36,3 +36,12 @@ git lfs install
 
 # Clone the repository
 git clone https://github.com/ZAF-prog/chess-evaluation-tools/
+
+### 2. Other repos pulled for local use
+
+This repository uses the following repos for local use:
+
+- [GlickoAssessor](https://github.com/fsmosca/GlickoAssessor) by Ferdinand Mosca, utilized in src/pgn_GlickoAssessor.py
+ (not mirrored by this repo, masked by .gitignore)
+- utility code from  [World-Chess-Championships](https://github.com/drmehmetismail/World-Chess-Championships) by "drmehmetismail"*"
+ (not mirrored by this repo, masked by .gitignore)
