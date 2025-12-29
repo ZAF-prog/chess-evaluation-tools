@@ -46,5 +46,5 @@ This repository uses the following repos for local use:
 
 - [GlickoAssessor](https://github.com/fsmosca/GlickoAssessor) by Ferdinand Mosca, utilized in src/pgn_GlickoAssessor.py
  (not mirrored by this repo, masked by .gitignore)
-- utility code from  [World-Chess-Championships](https://github.com/drmehmetismail/World-Chess-Championships) by "drmehmetismail"*"
+- utility code from  [World-Chess-Championships](https://github.com/drmehmetismail/World-Chess-Championships) by "drmehmetismail"
  (not mirrored by this repo, masked by .gitignore)
