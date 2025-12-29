@@ -1,0 +1,60 @@
+Tournament,Player,Elo_Rating,Total_Games,Total_Moves,Elo_TPR,avg_gi,ACPL,ACPL_SD
+1886_Steinitz-Zukertort.pgn,"Steinitz, William",0.0,20,839,50.0,154.71,46.98,12.3955
+1886_Steinitz-Zukertort.pgn,"Zukertort, Johannes Hermann",0.0,20,839,-50.0,145.77,78.0,18.604
+1889_Steinitz-Chigorin.pgn,"Chigorin, Mikhail",0.0,17,761,-47.0,150.17,70.31,12.2755
+1889_Steinitz-Chigorin.pgn,"Steinitz, William",0.0,17,763,47.0,158.03,65.08,11.2402
+1890_Steinitz-Gunsburg.pgn,"Gunsberg, Isidor",0.0,19,739,-21.0,149.13,51.85,15.8516
+1890_Steinitz-Gunsburg.pgn,"Steinitz, William",0.0,19,739,21.0,154.6,35.26,5.7292
+1892_Steinitz-Chigorin_II.pgn,"Chigorin, Mikhail",0.0,23,839,-17.0,148.47,127.36,28.6176
+1892_Steinitz-Chigorin_II.pgn,"Steinitz, William",0.0,23,839,17.0,156.54,161.75,30.8758
+1894_Steinitz-Lasker.pgn,"Lasker, Emanuel",0.0,19,988,53.0,151.92,38.07,8.1311
+1894_Steinitz-Lasker.pgn,"Steinitz, William",0.0,19,983,-53.0,146.58,37.22,7.0808
+1896_Lasker-Steinitz_II.pgn,"Lasker, Emanuel",0.0,17,838,94.0,147.22,50.0,16.2959
+1896_Lasker-Steinitz_II.pgn,"Steinitz, William",0.0,17,833,-94.0,140.94,93.42,24.6884
+1907_Lasker-Marshall.pgn,"Lasker, Emanuel",0.0,15,666,107.0,164.01,101.59,26.2235
+1907_Lasker-Marshall.pgn,"Marshall, Frank James",0.0,15,665,-107.0,142.84,156.97,36.7825
+1908_Lasker-Tarrasch.pgn,"Lasker, Emanuel",0.0,16,831,62.0,154.53,36.71,6.7753
+1908_Lasker-Tarrasch.pgn,"Tarrasch, Siegbert",0.0,16,827,-62.0,141.69,131.9,28.4792
+1910_Lasker-Janowski.pgn,"Janowski, Dawid Markelowicz",0.0,11,548,-145.0,147.86,35.91,3.7079
+1910_Lasker-Janowski.pgn,"Lasker, Emanuel",0.0,11,553,145.0,156.48,18.49,2.4278
+1910_Lasker-Schlechter.pgn,"Lasker, Emanuel",0.0,10,522,0.0,146.07,31.48,12.5619
+1910_Lasker-Schlechter.pgn,"Schlechter, Carl",0.0,10,522,0.0,149.73,15.44,1.3504
+1921_Lasker-Capablanca.pgn,"Capablanca, Jose Raul",0.0,14,573,57.0,158.76,29.65,17.8445
+1921_Lasker-Capablanca.pgn,"Lasker, Emanuel",0.0,14,573,-57.0,153.01,47.45,24.1389
+1927_Capablanca-Alekhine.pgn,"Alekhine, Alexander",0.0,34,1389,18.0,160.06,27.77,7.7588
+1927_Capablanca-Alekhine.pgn,"Capablanca, Jose Raul",0.0,34,1388,-18.0,155.33,25.08,7.8671
+1929_Alekhine-Bogoljubow.pgn,"Alekhine, Alexander",0.0,25,1221,48.0,152.26,37.81,8.0471
+1929_Alekhine-Bogoljubow.pgn,"Bogoljubow, Efim",0.0,25,1221,-48.0,150.16,88.04,19.4479
+1934_Alekhine-Bogoljubow_II.pgn,"Alekhine, Alexander",0.0,26,1326,38.0,150.38,27.87,2.4571
+1934_Alekhine-Bogoljubow_II.pgn,"Bogoljubow, Efim",0.0,26,1322,-38.0,143.28,54.22,11.5119
+1935_Alekhine-Euwe.pgn,"Alekhine, Alexander",0.0,30,1310,-7.0,153.27,39.13,8.7442
+1935_Alekhine-Euwe.pgn,"Euwe, Max",0.0,30,1314,7.0,150.34,31.27,7.0387
+1937_Alekhine-Euwe_II.pgn,"Alekhine, Alexander",0.0,25,1089,48.0,153.7,34.86,7.34
+1937_Alekhine-Euwe_II.pgn,"Euwe, Max",0.0,25,1084,-48.0,149.4,51.47,11.9882
+1948_World_Championship_Tournament.pgn,"Botvinnik, Mikhail",0.0,20,856,80.0,156.77,24.51,1.6368
+1948_World_Championship_Tournament.pgn,"Euwe, Max",0.0,20,748,-120.0,146.46,61.79,20.3351
+1948_World_Championship_Tournament.pgn,"Keres, Paul",0.0,20,842,10.0,151.93,59.25,16.3407
+1948_World_Championship_Tournament.pgn,"Reshevsky, Samuel Herman",0.0,20,835,10.0,147.31,32.95,11.4232
+1948_World_Championship_Tournament.pgn,"Smyslov, Vassily",0.0,20,943,20.0,150.45,19.41,1.3426
+1951_Botvinnik-Bronstein.pgn,"Botvinnik, Mikhail",0.0,24,1168,0.0,147.54,30.95,8.2585
+1951_Botvinnik-Bronstein.pgn,"Bronstein, David I",0.0,24,1171,0.0,149.16,18.45,1.0573
+1954_Botvinnik-Smyslov.pgn,"Botvinnik, Mikhail",0.0,24,990,0.0,154.97,22.26,1.4979
+1954_Botvinnik-Smyslov.pgn,"Smyslov, Vassily",0.0,24,992,0.0,151.84,21.76,1.1933
+1957_Botvinnik-Smyslov_II.pgn,"Botvinnik, Mikhail",0.0,22,870,-27.0,152.82,18.29,1.2239
+1957_Botvinnik-Smyslov_II.pgn,"Smyslov, Vassily",0.0,22,873,27.0,155.62,17.49,1.2455
+1958_Botvinnik-Smyslov_III.pgn,"Botvinnik, Mikhail",0.0,23,1047,17.0,151.07,43.45,12.7439
+1958_Botvinnik-Smyslov_III.pgn,"Smyslov, Vassily",0.0,23,1046,-17.0,152.68,30.61,7.7209
+1960_Botvinnik-Tal.pgn,"Botvinnik, Mikhail",0.0,21,914,-38.0,150.95,21.67,1.7697
+1960_Botvinnik-Tal.pgn,"Tal, Mikhail",0.0,21,916,38.0,151.75,18.93,1.2948
+1961_Botvinnik-Tal_II.pgn,"Botvinnik, Mikhail",0.0,21,1104,48.0,150.13,27.53,4.9743
+1961_Botvinnik-Tal_II.pgn,"Tal, Mikhail",0.0,21,1101,-48.0,145.99,45.35,9.923
+1963_Botvinnik-Petrosian.pgn,"Botvinnik, Mikhail",0.0,22,983,-27.0,153.1,16.78,1.0515
+1963_Botvinnik-Petrosian.pgn,"Petrosian, Tigran V",0.0,22,984,27.0,153.88,15.81,1.1372
+1966_Petrosian-Spassky.pgn,"Petrosian, Tigran V",0.0,24,1056,8.0,150.77,17.95,1.1532
+1966_Petrosian-Spassky.pgn,"Spassky, Boris V.",0.0,24,1052,-8.0,152.57,28.27,8.8632
+1969_Petrosian-Spassky_II.pgn,"Petrosian, Tigran V",0.0,23,997,-17.0,154.76,26.68,9.4067
+1969_Petrosian-Spassky_II.pgn,"Spassky, Boris V.",0.0,23,999,17.0,156.62,18.44,3.1657
+1972_Spassky-Fischer.pgn,"Fischer, Robert James",2785.0,20,906,2835.0,157.69,17.17,1.244
+1972_Spassky-Fischer.pgn,"Spassky, Boris V.",2660.0,20,907,2610.0,148.83,28.09,7.7715
+2024_Ding-Dommaraju.pgn,"Ding, Liren",2728.0,14,635,2714.0,166.18,0.0,0.0
+2024_Ding-Dommaraju.pgn,Gukesh D,2783.0,14,636,2797.0,167.51,0.0,0.0

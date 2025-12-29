@@ -238,6 +238,8 @@ def process_game(game):
         'black_missed_points': black_gpl,
         'white_acpl': white_acpl,
         'black_acpl': black_acpl,
+        'white_acpl_losses': white_losses,  # Individual losses for robust SD
+        'black_acpl_losses': black_losses,  # Individual losses for robust SD
         'white_moves': white_move_count,
         'black_moves': black_move_count
     }
@@ -277,12 +279,12 @@ def calculate_player_stats(pgn_file):
     # We have one row per game with White and Black stats.
     # Split into two rows per game (one for white player, one for black player)
     
-    white_df = df[['Tournament', 'White', 'WhiteResult', 'WhiteElo', 'white_gi', 'white_missed_points', 'white_acpl', 'white_moves']].copy()
-    white_df.columns = ['Tournament', 'Player', 'Result', 'Elo', 'gi', 'missed_points', 'acpl', 'moves']
+    white_df = df[['Tournament', 'White', 'WhiteResult', 'WhiteElo', 'white_gi', 'white_missed_points', 'white_acpl', 'white_acpl_losses', 'white_moves']].copy()
+    white_df.columns = ['Tournament', 'Player', 'Result', 'Elo', 'gi', 'missed_points', 'acpl', 'acpl_losses', 'moves']
     white_df['IsWhite'] = True
     
-    black_df = df[['Tournament', 'Black', 'BlackResult', 'BlackElo', 'black_gi', 'black_missed_points', 'black_acpl', 'black_moves']].copy()
-    black_df.columns = ['Tournament', 'Player', 'Result', 'Elo', 'gi', 'missed_points', 'acpl', 'moves']
+    black_df = df[['Tournament', 'Black', 'BlackResult', 'BlackElo', 'black_gi', 'black_missed_points', 'black_acpl', 'black_acpl_losses', 'black_moves']].copy()
+    black_df.columns = ['Tournament', 'Player', 'Result', 'Elo', 'gi', 'missed_points', 'acpl', 'acpl_losses', 'moves']
     black_df['IsWhite'] = False
     
     combined = pd.concat([white_df, black_df], ignore_index=True)
@@ -305,6 +307,22 @@ def calculate_player_stats(pgn_file):
         avg_gi = group['gi'].mean()
         avg_missed_points = group['missed_points'].mean()
         
+        # Calculate robust SD for ACPL using bootstrap
+        # Combine all ACPL losses from all games for this player
+        all_losses = []
+        for losses_list in group['acpl_losses']:
+            if isinstance(losses_list, list):
+                all_losses.extend(losses_list)
+        
+        if len(all_losses) > 1:
+            # Bootstrap resampling (1000 samples as per reference implementation)
+            bootstrap_samples = 1000
+            boot_means = [np.mean(np.random.choice(all_losses, size=len(all_losses), replace=True)) 
+                         for _ in range(bootstrap_samples)]
+            acpl_robust_sd = np.std(boot_means)
+        else:
+            acpl_robust_sd = 0.0
+        
         gi_median = group['gi'].median()
         missed_points_median = group['missed_points'].median()
         
@@ -326,6 +344,7 @@ def calculate_player_stats(pgn_file):
             'total_game_count': total_games,
             'total_moves': total_moves,
             'avg_acpl': avg_acpl,
+            'acpl_robust_sd': acpl_robust_sd,
             'avg_gi': avg_gi,
             'avg_missed_points': avg_missed_points,
             'avg_missed_points_white': avg_missed_points_white,
@@ -386,7 +405,7 @@ def main():
         base, _ = os.path.splitext(args.input_csv)
         output_csv_path = f"{base}_TPR-stats.csv"
     else:
-        output_csv_path = 'player_stats.csv'
+        output_csv_path = 'player_TPR-stats.csv'
 
     pgn_files = []
     if args.pgn_file:
@@ -423,21 +442,22 @@ def main():
         # Outer merge on ['Tournament', 'Player']
         player_stats = player_stats.merge(additional_data, on=['Tournament', 'Player'], how='outer')
         # Coalesce columns if they exist in both
-        for col in ['Elo', 'TPR', 'total_game_count', 'total_moves', 'avg_acpl', 'avg_gi']:
+        for col in ['Elo', 'TPR', 'total_game_count', 'total_moves', 'avg_acpl', 'acpl_robust_sd', 'avg_gi']:
             if f'{col}_x' in player_stats.columns and f'{col}_y' in player_stats.columns:
                 player_stats[col] = player_stats[f'{col}_y'].combine_first(player_stats[f'{col}_x'])
                 player_stats.drop(columns=[f'{col}_x', f'{col}_y'], inplace=True)
     
     if not player_stats.empty:
         # Rename columns to match required output format
-        output_df = player_stats[['Tournament', 'Player', 'Elo', 'total_game_count', 'total_moves', 'TPR', 'avg_gi', 'avg_acpl']].copy()
-        output_df.columns = ['Tournament', 'Player', 'Elo_Rating', 'Total_Games', 'Total_Moves', 'Elo_TPR', 'avg_gi', 'avg_acpl']
+        output_df = player_stats[['Tournament', 'Player', 'Elo', 'total_game_count', 'total_moves', 'TPR', 'avg_gi', 'avg_acpl', 'acpl_robust_sd']].copy()
+        output_df.columns = ['Tournament', 'Player', 'Elo_Rating', 'Total_Games', 'Total_Moves', 'Elo_TPR', 'avg_gi', 'ACPL', 'ACPL_SD']
         
         # Round numeric columns for cleaner output
         output_df['Elo_Rating'] = output_df['Elo_Rating'].round(0)
         output_df['Elo_TPR'] = output_df['Elo_TPR'].round(0)
         output_df['avg_gi'] = output_df['avg_gi'].round(2)
-        output_df['avg_acpl'] = output_df['avg_acpl'].round(2)
+        output_df['ACPL'] = output_df['ACPL'].round(2)
+        output_df['ACPL_SD'] = output_df['ACPL_SD'].round(4)
         
         # Save to CSV
         output_df.to_csv(output_csv_path, index=False)
